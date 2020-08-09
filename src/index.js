@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import happy from './happy.jpg';
+import sad  from './sad.jpg';
+
 
 class Square extends React.Component {
 constructor(props) {
@@ -10,24 +13,49 @@ constructor(props) {
         };
 }
   render() {
+    let valueOfSource;
+    if (this.state.value != null)
+    {
+        valueOfSource = sad;
+    } 
+    else
+    {
+        valueOfSource = happy;
+    }
+
     return (
-      <button 
-        className="square" 
-        onClick={() => this.setState({value: 'X'}) }
-        >
-        {this.state.value}
-      </button>
+      <img 
+        src={valueOfSource} 
+        alt="pic" 
+        onClick={() => {
+            if(this.state.value == null)
+            {
+                this.setState({value: 'X'}) 
+            }
+
+            else
+            {
+                this.setState({value: null})
+            }
+          }
+        }/>
     );
   }
 }
 
 class Board extends React.Component {
+  constructor(props) {
+      super(props);
+      this.state = {
+          squares: Array(9).fill(null),
+      };
+  }
   renderSquare(i) {
-    return <Square value={i} />;
+    return <Square />;
   }
 
   render() {
-    const status = 'Next player: X';
+    const status = 'Cadia fell before the guard did';
 
     return (
       <div>
