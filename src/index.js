@@ -122,9 +122,13 @@ class Game extends React.Component {
     super(props);
     this.state = {
       history: [{
-        squares: Array(9).fill(null)
+        squares: Array(9).fill(null),
       }],
-      xIsNext: true
+
+      // stepNumber is needed to make jumpTo method work.
+      // That method allows buttons of game history work.
+      stepNumber: 0,
+      xIsNext: true,
     };
   }
 
@@ -133,11 +137,24 @@ class Game extends React.Component {
   // lifitng state up to Game comp.
   handleClick(i) {
 
-    // history contains array of Board configurations after each turn.
-    // Then we get into current configuration on board assigned to 
-    // current constant.
-    // After that, winner calcualting, etc. works similiar as earlier.
-    const history = this.state.history;
+    // // history contains array of Board configurations after each turn.
+    // // Then we get into current configuration on board assigned to 
+    // // current constant.
+    // // After that, winner calcualting, etc. works similiar as earlier.
+
+    // Here the history constant has .slice() method - it will ensure 
+    // that after going back in time, all the future-but-not-true-anymore
+    // steps will be deleted. Bear in mind that deletion of these buttons
+    // does not affect the element's key rule, because index will also go
+    // back and new buttons will get keys of older buttons.
+    // jumpTo() method alters the state.stepNumber value - that value
+    // is stored in State, so that will update below 'history' value and
+    // update the whole button tree.
+    const history = this.state.history.slice(0, this.state.stepNumber +1);
+
+    // Here history.length - 1 and this.state.stepNumber are equal, so it
+    // does not matter which we use. What is more, the history.length is
+    // linked to this.state.stepNumber value (check line above)
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     if (calculateWinner(squares) || squares[i]) {
@@ -157,13 +174,35 @@ class Game extends React.Component {
       history: history.concat([{
         squares: squares
       }]),
+
+      // Here, stepNumber reflects moment on which the game is currently on,
+      // before new symbol were put in Square. At the start it's equal to 0,
+      // so 'Go to game start button' will bring back the full empty board.
+      // Each new elements adds 1 to stepNumber and after pressing the button,
+      // counter will reset accordingly to new Game status.
+      stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
+    });
+  }
+
+  // Very poor wording of arguments, as 'step' is called 'move'
+  // in render() method.
+  jumpTo(step) {
+    this.setState({
+      stepNumber: step,
+      xIsNext: (step % 2) === 0,
     });
   }
 
   render() {
     const history = this.state.history;
-    const current = history[history.length - 1];
+
+    // Here we changed it from history.length - 1 to
+    // this.state.stepNumber - it will now render the currently 
+    // selected move (in case of clicking a button), from previous
+    // always rendering the last move. Without that change, buttons
+    // will not work.
+    const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
     // .map() method on array is able to map data to other data - 
@@ -179,8 +218,14 @@ class Game extends React.Component {
       const desc = move ?
       'Go to move #' + move :
       'Go to game start';
+
+      // each child element in React needs a KEY - normally it suppose
+      // to be unique ID generated from DB or generated earlier on,
+      // however here the buttons will never be reordered, deleted
+      // or inserted in the middle, so here using index as a key is
+      // safe option.
       return (
-        <li>
+        <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       )
