@@ -129,6 +129,7 @@ class Game extends React.Component {
       // That method allows buttons of game history work.
       stepNumber: 0,
       xIsNext: true,
+      
     };
   }
 
@@ -172,7 +173,8 @@ class Game extends React.Component {
     // each step.
     this.setState({
       history: history.concat([{
-        squares: squares
+        squares: squares,
+        ClickedSquare: i,
       }]),
 
       // Here, stepNumber reflects moment on which the game is currently on,
@@ -205,6 +207,7 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
+
     // .map() method on array is able to map data to other data - 
     // here we use it on the array of Board configs and map it onto 
     // list of buttons. After each move where new Square is filled up,
@@ -213,10 +216,18 @@ class Game extends React.Component {
     // .map() works that way only new elements will be mapped after each
     // call of that method. However, there is no way of mutating buttons
     // (elements) that already have been created.
-     // 'moves' is a list/array of <button/> elements.
+    // 'moves' is a list/array of <button/> elements.
     const moves = history.map((step, move) => {
+
+      // In state we keep the clicked Square that happened in each
+      // Board config. Based on that, we calculate in which column
+      // and row the clicked Square was.
+      const currentSquare = step.ClickedSquare;
+      const col = (currentSquare % 3) + 1;
+      const row = Math.floor(currentSquare / 3) + 1;
+
       const desc = move ?
-      'Go to move #' + move :
+      'Go to move #' + move + ' col: ' + col + ' row: ' + row :
       'Go to game start';
 
       // each child element in React needs a KEY - normally it suppose
@@ -283,4 +294,4 @@ function calculateWinner(squares) {
     }
   }
     return null;
-}
+};
