@@ -165,6 +165,27 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[history.length - 1];
     const winner = calculateWinner(current.squares);
+
+    // .map() method on array is able to map data to other data - 
+    // here we use it on the array of Board configs and map it onto 
+    // list of buttons. After each move where new Square is filled up,
+    // new button will appear - what is more, not the whole structure
+    // of buttons will be reloaded, only the new button will be added.
+    // .map() works that way only new elements will be mapped after each
+    // call of that method. However, there is no way of mutating buttons
+    // (elements) that already have been created.
+     // 'moves' is a list/array of <button/> elements.
+    const moves = history.map((step, move) => {
+      const desc = move ?
+      'Go to move #' + move :
+      'Go to game start';
+      return (
+        <li>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        </li>
+      )
+    })
+
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
@@ -183,7 +204,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{/* TODO */}</ol>
+          <ol>{moves}</ol>
         </div>
       </div>
     );
